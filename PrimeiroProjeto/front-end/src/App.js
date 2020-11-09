@@ -1,14 +1,29 @@
-import React, { useState } from 'react';
-import Header from './components/Header'
+import React, { useState, useEffect } from 'react';
+import Header from './components/Header';
+
+import api from './services/api'
 import './App.css';
 
 function App() {
-  const [projects, setProjects] = useState(['Desenvolvimento de app', 'Front-end web']);
+  const [projects, setProjects] = useState([]);
 
-  function heandleAddProject(){
+  useEffect(() => {
+    api.get('/projects').then(response => {
+      setProjects(response.data);
+    })
+  }, []);
+
+  async function heandleAddProject(){
     //projects.push('Novo Projeto');
-    setProjects([...projects, 'novo projeto']);
-    console.log(projects);
+    //setProjects([...projects, 'novo projeto']);
+    const response = await api.post('projects', {
+      title: "React-Native",
+      owner: "Eduardo Silva"
+    });
+
+    const project = response.data;
+
+    setProjects([...projects, project]);
   }
 
   return (
@@ -16,7 +31,7 @@ function App() {
       <Header title="Homepage" />
 
       <ul>
-        {projects.map(project => <li key={project}>{project}</li>)}
+        {projects.map(project => <li key={project.id}>{project.title}</li>)}
       </ul>
       <button type="button" onClick={heandleAddProject}>Adicionar projeto</button>
     </>
